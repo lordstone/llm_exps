@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 from google import genai
@@ -70,6 +71,11 @@ def generate_text(prompt, model="gemini-2.5-flash", **kwargs):
         str: The generated text.
     """
 
+    if kwargs.get("debug", False):
+        print(f"Using model: {model}")
+        print(f"Prompt: {prompt}")
+        print(f"Config: {config}")
+
     contents = [
         types.Content(
             role="user", parts=[types.Part(text=prompt)]
@@ -83,8 +89,19 @@ def generate_text(prompt, model="gemini-2.5-flash", **kwargs):
     
     print(response.text)
 
+    if kwargs.get("debug", False):
+        print(f"Response: {response}")
+
 
 if __name__ == "__main__":
+    # Get arguments
+    parser = argparse.ArgumentParser(description="Generate text using Google Gemini API.")
+    parser.add_argument("--model", type=str, default="gemini-2.5-flash",
+                        help="Model name to use for text generation.")
+    parser.add_argument("--debug", action="store_true",
+                        help="Enable debug mode to print additional information.")
+    args = parser.parse_args()
+
     prompt = input("Enter your prompt: ")
-    generate_text(prompt)
+    generate_text(prompt, model=args.model, debug=args.debug)
     
