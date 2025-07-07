@@ -4,6 +4,8 @@ import time
 from google import genai
 from google.genai import types
 
+from utils import print_thoughts
+
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not API_KEY:
@@ -86,6 +88,7 @@ tools = types.Tool(
     """
 
 
+
 def generate_text(prompt, model="gemini-2.5-flash", **kwargs):
     """
     Generate text using Google Gemini API via the google-generativeai library.
@@ -111,7 +114,9 @@ def generate_text(prompt, model="gemini-2.5-flash", **kwargs):
 
     if kwargs.get("thinking", False):
         print("Using thinking for the model.")
-        configs.thinking_config=types.ThinkingConfig(thinking_budget=1024)
+        configs.thinking_config=types.ThinkingConfig(
+                include_thoughts=True
+            )
         # Turn off thinking:
         # thinking_config=types.ThinkingConfig(thinking_budget=0)
         # Turn on dynamic thinking:
@@ -165,9 +170,16 @@ def generate_text(prompt, model="gemini-2.5-flash", **kwargs):
             contents=contents,
         )
 
+        if kwargs.get("thinking", False):
+            print_thoughts(final_response)
+
         print(final_response.text)
     else:
         print("No function call found in the response.")
+        
+        if kwargs.get("thinking", False):
+            print_thoughts(response)
+
         print(response.text)
 
     if kwargs.get("debug", False):

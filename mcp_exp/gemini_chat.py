@@ -1,5 +1,8 @@
 import os
 from google import genai
+from google.genai import types
+
+from utils import print_thoughts
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -19,7 +22,14 @@ def generate_text(model="gemini-2.5-flash", **kwargs):
         str: The generated text.
     """
     client = genai.Client()
-    chat = client.chats.create(model="gemini-2.5-flash")
+    chat = client.chats.create(
+        model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(
+            thinking_config=types.ThinkingConfig(
+                include_thoughts=True
+            ),
+        )
+    )
 
     while True:
         user_input = input("Enter your message (or 'exit' to quit): ")
@@ -32,6 +42,7 @@ def generate_text(model="gemini-2.5-flash", **kwargs):
             continue
 
         response = chat.send_message(user_input)
+        print_thoughts(response)
         print(f"Response: {response.text}")
 
 
